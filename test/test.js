@@ -365,6 +365,22 @@ tape('test toString encoding', function (t) {
   t.end()
 })
 
+tape('uninitialized memory', function (t) {
+  var secret = crypto.randomBytes(256)
+  for (var i = 0; i < 1e6; i++) {
+    var clone = new Buffer(secret)
+    var bl = new BufferList()
+    bl.append(new Buffer('a'))
+    bl.consume(-1024)
+    var buf = bl.slice(1)
+    if (buf.toString('hex').indexOf(clone.toString('hex')) !== -1) {
+      t.fail('Match (at ' + i + ')')
+      break
+    }
+  }
+  t.end()
+})
+
 !process.browser && tape('test stream', function (t) {
   var random = crypto.randomBytes(65534)
     , rndhash = hash(random, 'md5')
